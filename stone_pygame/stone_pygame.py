@@ -14,17 +14,13 @@ screen = pygame.display.set_mode((window_x,window_y))
 clock = pygame.time.Clock()
 screen.fill("white")
 
-# Movements control
-movements_history = [] #Ainda não usando as informações de movimento
 
 def main():
     # Clean possible previous commands
     pygame.event.clear()
 
-    #Controle para a função restart
+    # Player and game initial
     lost_game = False
-
-    # Player initial
     player_position = START_POSITION
     movements_count = 0
     movements_list = []
@@ -34,7 +30,7 @@ def main():
     display_maze(maze, player_position)
 
     while True:
-        # Process player inputs.
+        # Processing player inputs.
         command = ''
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -66,9 +62,9 @@ def main():
                 elif event.key == pygame.K_h or event.key == pygame.K_SLASH or event.key == pygame.K_QUESTION:
                     help_game()
 
-        # Do logical updates here.
+        # Logical updates
         if command != '':
-            if command in DIRECTIONS: #Testing if the comand is a direction
+            if command in DIRECTIONS: #Testing if the comand is a valid direction
                 maze_bk = maze
                 player_position_bk = player_position
                 maze = change_maze(maze)
@@ -82,47 +78,30 @@ def main():
                 elif square not in GOOD_POSITION + BAD_POSITION:
                     movements_count += 1
                     movements_list.append(command.upper())
-                    maze = change_maze(maze)
 
                 if square in GOOD_POSITION:
-                    #plays.append(command.upper())
+                    movements_list.append(command.upper())
                     print(WIN_TEXT)
-                    #print("")
-                    #print(f"Moves: {b}")
-                    #print(plays)
-                    #save_steps_win(plays)
-                    #x=input("Press Enter to exit...")
-                    maze = change_maze(maze)
+                    print("")
+                    print(f"Moves: {movements_list}")
                     break
 
                 if square in BAD_POSITION:
-                    #plays.append(command.upper())
-                    #print(LOSE_TEXT)
-                    #print("")
-                    #print(f"Moves: {b}")
-                    #print(plays)
-                    #save_steps(plays)
-                    #x=input("Press Enter to restart or 'q' followed by Enter to quit... ")
-                    #if x == 'q': exit()
-                    #break
+                    movements_list.append(command.upper())
+                    print(LOSE_TEXT)
                     lost_game = True
-                    restart_game(lost_game, movements_list) #recomeçar
+                    restart_game(lost_game)
 
                 display_maze(maze, player_position)
             
-            """
-            if command not in str(DIRECTIONS) + "p?r":
-                print("Invalid command:",command)
-            #################
-            """
+            if command not in str(DIRECTIONS) + "p?r" + '':
+                print("Invalid command:", command)
+                help_game()
 
             command = ''
 
-        # Render the graphics here.
-        # ...
-
         pygame.display.flip()  # Refresh on-screen display
-        clock.tick(1000)         # wait until next frame (at 60 FPS)
+        clock.tick(1000)       # wait until next frame
 
     return 0
 
@@ -315,7 +294,7 @@ def show_legal_direction(moves):
     # displaying text
     screen.blit(legal_surface, legal_rect)
 
-def restart_game(lost_game, match_movements):
+def restart_game(lost_game):
 
     # creating font object my_font
     my_font = pygame.font.SysFont('times new roman', 50)
@@ -342,17 +321,9 @@ def restart_game(lost_game, match_movements):
         restart_lost_game_rect.midtop = (window_x/2, window_y/4 - 50)
         screen.blit(restart_lost_game_surface, restart_lost_game_rect)
 
-    pygame.display.flip()
-    
-    # after 2 seconds we will restart the game
-    time.sleep(1)
-    
-    # Movements settings
-    global movements_history
-    movements_history.append(match_movements)
-
-    # restart game through main function
-    main()
+    pygame.display.flip() # update UI
+    time.sleep(1) # restarting the game in 1 second 
+    main() # restart game through main function
 
 
 def quit_game(maze, player_position):
@@ -360,8 +331,7 @@ def quit_game(maze, player_position):
     # creating font object my_font
     my_font = pygame.font.SysFont('times new roman', 50)
     
-    # creating a text surface on which text
-    # will be drawn
+    # creating a text surface on which text will be drawn
     quit_game_surface_1 = my_font.render(
         'You will quit the game and the', True, 'red')
     quit_game_surface_2 = my_font.render(
@@ -371,8 +341,7 @@ def quit_game(maze, player_position):
     quit_game_surface_4 = my_font.render(
         '[y] or n', True, 'red')
     
-    # create a rectangular object for the text
-    # surface object
+    # create a rectangular object for the text surface object
     quit_game_rect_1 = quit_game_surface_1.get_rect()
     quit_game_rect_2 = quit_game_surface_2.get_rect()
     quit_game_rect_3 = quit_game_surface_3.get_rect()
